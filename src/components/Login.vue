@@ -73,7 +73,9 @@ export default {
     },
     login() {
       // 表单校验通过 返回true 否则false
-      this.$refs.loginFromRef.validate(async vaild => {
+      this.$refs.loginFromRef.validate(async valid => {
+        console.log(valid)
+        if (!valid) return
         const { data: res } = await this.$http.post('/login', this.loginForm)
         console.log(res)
         if (res.meta.status !== 200) return this.$message.error('登录失败！')
@@ -84,11 +86,6 @@ export default {
         this.$router.replace('/home')
       })
     }
-  },
-  // 销毁前
-  beforeDestroy () {
-    // this.$emit('')
-    this.token = window.sessionStorage.getItem('token')
   }
 }
 </script>
