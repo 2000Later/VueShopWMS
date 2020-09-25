@@ -46,7 +46,7 @@
         <el-table-column label="角色描述" prop="roleDesc"></el-table-column>
         <el-table-column label="操作" width="300">
           <template v-slot="scope">
-            <el-button size="mini" icon="el-icon-edit" type="primary">编辑</el-button>
+            <el-button size="mini" icon="el-icon-edit" type="primary" @click="showEditDialog(scope.row.id)">编辑</el-button>
             <el-button size="mini" icon="el-icon-delete" type="danger" @click="removeRoleById(scope.row)">删除</el-button>
             <el-button size="mini" icon="el-icon-setting" type="warning" @click="showSetRightDialog(scope.row)">分配权限</el-button>
           </template>
@@ -79,7 +79,7 @@
     :visible.sync="addDialogVisible"
     width="50%"
     @close="addDialogClosed">
-    <el-form :model="addForm" :rules="addFormRules" ref="addFormRef">
+    <el-form :model="addForm" :rules="addFormRules" ref="addFormRef" label-width="80px">
       <el-form-item label="角色名称" prop="roleName">
         <el-input v-model="addForm.roleName"></el-input>
       </el-form-item>
@@ -93,6 +93,23 @@
     </span>
   </el-dialog>
   <!-- 编辑角色对话框 -->
+  <el-dialog
+    title="提示"
+    :visible.sync="editDialogVisible"
+    width="50%" >
+    <el-form :model="editForm" :rules="editFormRules" ref="editFormRef" label-width="80px">
+      <el-form-item label="角色名称" prop="roleName">
+        <el-input v-model="editForm.roleName"></el-input>
+      </el-form-item>
+      <el-form-item label="角色描述" prop="roleDesc">
+        <el-input v-model="editForm.roleDesc"></el-input>
+      </el-form-item>
+    </el-form>
+    <span slot="footer" class="dialog-footer">
+    <el-button @click="editDialogVisible = false">取 消</el-button>
+    <el-button type="primary" @click="editRoleInfo">确 定</el-button>
+  </span>
+  </el-dialog>
 </div>
 </template>
 
@@ -112,7 +129,7 @@ export default {
       addFormRules: {
         roleName: [
           { required: true, message: '请输入角色名', trigger: 'blur' },
-          { min: 3, max: 15, message: '长度长度在 3 到 15 个字符', trigger: 'blur' }
+          { min: 2, max: 15, message: '长度长度在 2 到 15 个字符', trigger: 'blur' }
         ],
         roleDesc: [
           { required: false, message: '请输入角色描述', trigger: 'blur' },
@@ -131,7 +148,22 @@ export default {
       // 默认选中节点id的值
       defKeys: [],
       // 当前即将分配权限的角色id
-      roleId: ''
+      roleId: '',
+      // 控制 编辑角色的对话框
+      editDialogVisible: false,
+      // 编辑表单的数据
+      editForm: {},
+      // 编辑表单的规则
+      editFormRules: {
+        roleName: [
+          { required: true, message: '请输入角色名', trigger: 'blur' },
+          { min: 2, max: 15, message: '长度长度在 2 到 15 个字符', trigger: 'blur' }
+        ],
+        roleDesc: [
+          { required: true, message: '请输入角色描述', trigger: 'blur' },
+          { min: 3, max: 30, message: '长度长度在 3 到 15 个字符', trigger: 'blur' }
+        ]
+      }
     }
   },
   created () {
@@ -161,7 +193,26 @@ export default {
     addDialogClosed() {
       this.$refs.addFormRef.resetFields()
     },
-    showEditDialog() {
+    // 监听编辑按钮的点击事件
+    async showEditDialog(id) {
+      const { data: res } = await this.$http.get('roles/' + id)
+      if (res.meta.status !== 200) return this.$message.error('查询角色数据失败！')
+      this.editForm = res.data
+      this.editDialogVisible = true
+    },
+    // 修改用户信息并提交
+    editRoleInfo() {
+      this.$refs.editFormRef.validate(async vaild => {
+        if (!vaild) return
+        const { data: res } = await this.$http.put('roles/' + this.editForm.roleId, {
+          roleName: this.editForm.roleName,
+          roleDesc: this.editForm.roleDesc
+        })
+        if (res.meta.status !== 200) return this.$message.error('更新角色信息失败！')
+        this.$message.success('更新角色信息成功！')
+        this.getRolesList()
+        this.editDialogVisible = false
+      })
     },
     // 监听删除按钮的点击事件
     async removeRoleById(role) {
@@ -223,12 +274,16 @@ export default {
     },
     // 为角色分配权限
     async allotRights() {
+      console.log('选中的节点', this.$refs.treeRef.getCheckedKeys())
+      console.log('半选中的节点', this.$refs.treeRef.getHalfCheckedKeys())
       // ...展开运算符 合并数组里面的元素
       const keys = [
-        ...this.$refs.treeRef.getCheckedKeys(),
-        ...this.$refs.treeRef.getHalfCheckedKeys()
+        ...this.$refs.treeRef.getHalfCheckedKeys(),
+        ...this.$refs.treeRef.getCheckedKeys()
       ]
       const idStr = keys.join(',')
+      console.log(idStr)
+      // 将 角色id 和对应的 角色权限id字符串 发送到服务器
       const { data: res } = await this.$http.post(`roles/${this.roleId}/rights`, { rids: idStr })
       if (res.meta.status !== 200) return this.$message.error('分配权限失败！')
       this.$message.success('分配权限成功')
