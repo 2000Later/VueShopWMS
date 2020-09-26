@@ -49,12 +49,13 @@
       :total="total">
     </el-pagination>
     <!-- 添加分类对话框 -->
-    <el-dialog title="添加分类" :visible.sync="addCateDialogVisible" @close="addCateDialogClosed">
+    <el-dialog width="50%" title="添加分类" :visible.sync="addCateDialogVisible" @close="addCateDialogClosed">
       <el-form :model="addCateForm" :rules="addCateFormRules" ref="addCateFormRef" label-width="80px">
         <el-form-item label="分类名称" prop="cat_name">
           <el-input v-model="addCateForm.cat_name" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="父级分类" >
+          <!-- 级联选择框区域 -->
           <!-- options 用来指定数据源 -->
           <!-- props 用来指定配置对象 -->
           <el-cascader
@@ -203,7 +204,6 @@ export default {
     async getParentCateList() {
       const { data: res } = await this.$http.get('categories', { params: { type: 2 } })
       if (res.meta.status !== 200) return this.$message.error('获取父级分类数据失败！')
-      console.log(res.data)
       this.parentCateList = res.data
     },
     // 选择项发生变化触发函数
@@ -222,11 +222,9 @@ export default {
     },
     addCate() {
       this.$refs.addCateFormRef.validate(async vaild => {
-        console.log(vaild)
         if (!vaild) return
         const { data: res } = await this.$http.post('categories', this.addCateForm)
         if (res.meta.status !== 201) return this.$message.error('添加分类失败')
-        console.log(res.data)
         this.$message.success('添加分类成功!')
         // 重新加载分类列表数据
         this.getCateList()
@@ -243,7 +241,6 @@ export default {
       this.addCateForm.cat_level = 0
     },
     async showEditDialog(id) {
-      console.log(id)
       const { data: res } = await this.$http.get('categories/' + id)
       this.editForm = res.data
       console.log(this.editForm)

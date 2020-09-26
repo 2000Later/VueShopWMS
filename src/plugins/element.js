@@ -29,7 +29,10 @@ import {
   Tree,
   Select,
   Option,
-  Cascader
+  Cascader,
+  Alert,
+  Tabs,
+  TabPane
 } from 'element-ui'
 // 1、不是为了vue写的插件(插件内要处理)不支持Vue.use()加载方式
 // 2、非vue官方库不支持new Vue()方式
@@ -63,6 +66,9 @@ Vue.use(Tree)
 Vue.use(Select)
 Vue.use(Option)
 Vue.use(Cascader)
+Vue.use(Alert)
+Vue.use(Tabs)
+Vue.use(TabPane)
 // 挂载到vue的全局对象中
 Vue.prototype.$message = Message
 Vue.prototype.$confirm = MessageBox.confirm
