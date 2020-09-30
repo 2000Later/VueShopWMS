@@ -226,7 +226,7 @@ export default {
   methods: {
     async getUserList () {
       const { data: res } = await this.$http.get('/users', { params: this.queryInfo })
-      if (res.meta.status !== 200) return this.$message.error('获取用户数据失败')
+      if (res.meta.status !== 200) return this.$message.error('获取用户数据失败！')
       this.usetList = res.data.users
       this.total = res.data.total
     },
