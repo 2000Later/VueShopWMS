@@ -89,6 +89,8 @@
 </template>
 
 <script>
+//   lodash 是一个 JavaScript 实用工具库，提供一致性，及模块化、性能和配件等功能。
+// Lodash 消除了处理数组的麻烦，从而简化了 JavaScript、 数字、对象、字符串等。
 import _ from 'lodash'
 export default {
   name: '',
