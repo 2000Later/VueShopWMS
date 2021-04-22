@@ -34,7 +34,7 @@
       <el-table-column label="手机号" prop="mobile"></el-table-column>
       <el-table-column label="角色" prop="role_name"></el-table-column>
       <el-table-column label="状态" prop="mg_state">
-        <template v-slot="scope">
+        <template #default='scope'>
           <el-switch
             v-model="scope.row.mg_state"
             @change="userStateChanged(scope.row)">

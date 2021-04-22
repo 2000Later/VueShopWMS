@@ -8,6 +8,10 @@ import './assets/css/global.css'
 // 导入字体图标样式
 import './assets/fonts/iconfont.css'
 
+// 导入进度条的依赖包和样式
+import Nprogress from 'nprogress'
+import 'nprogress/nprogress.css'
+
 import axios from 'axios'
 import TreeTable from 'vue-table-with-tree-grid'
 
@@ -21,9 +25,16 @@ import 'quill/dist/quill.bubble.css' // for bubble theme
 axios.defaults.baseURL = 'http://127.0.0.1:8888/api/private/v1/'
 // 请求拦截器
 axios.interceptors.request.use(config => {
+  // request拦截器中展示进度条
+  Nprogress.start()
   // 请求头对象，添加token验证的 Authorization 字段
   // 每次使用axios发送请求 都要携带token验证
   config.headers.Authorization = window.sessionStorage.getItem('token')
+  return config
+})
+// 在response拦截器中，隐藏进度条 Nprogress.done()
+axios.interceptors.response.use(config => {
+  Nprogress.done()
   return config
 })
 Vue.prototype.$http = axios

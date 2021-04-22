@@ -78,7 +78,7 @@
     title="添加角色"
     :visible.sync="addDialogVisible"
     width="50%"
-    @close="addDialogClosed">
+      @close="addDialogClosed">
     <el-form :model="addForm" :rules="addFormRules" ref="addFormRef" label-width="80px">
       <el-form-item label="角色名称" prop="roleName">
         <el-input v-model="addForm.roleName"></el-input>
@@ -175,6 +175,7 @@ export default {
       const { data: res } = await this.$http.get('roles')
       if (res.meta.status !== 200) return this.$message.error('获取角色列表失败！')
       this.roleList = res.data
+      console.log(this.roleList)
     },
     // 监听添加对话框的 确认按钮的点击事件
     addRole() {
